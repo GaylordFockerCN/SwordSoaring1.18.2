@@ -270,7 +270,7 @@ public class YakshaMask extends Skill {
         SSPlayer ssPlayer = player.getCapability(SSCapabilityProvider.SS_PLAYER).orElse(new SSPlayer());
         poseStack.pushPose();
         poseStack.translate(0, (float)gui.getSlidingProgression(), 0);
-        GuiComponent.blit(poseStack, (int)x, (int)y, 24, 24, 0, 0, 1, 1, 1, 1);
+//        GuiComponent.blit(poseStack, (int)x, (int)y, 24, 24, 0, 0, 1, 1, 1, 1);
         GuiComponent.drawString(poseStack ,gui.font, String.format("YM %d", (ssPlayer.yakshaMaskCooldownTimer / 40)), (int) (x + 4), (int) (y + 6), 16777215);
         poseStack.popPose();
     }

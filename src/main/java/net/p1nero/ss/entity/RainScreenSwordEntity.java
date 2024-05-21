@@ -112,7 +112,7 @@ public class RainScreenSwordEntity extends SwordEntity{
             setPos(new Vec3(rotatedX, now.y+Math.sin(radians)*0.3, rotatedZ));
 
             //不知道为何1.18下两端不同步
-            radians = (tickCount + 10) * 0.1;//延迟补偿
+            radians = (tickCount+0.01) * 0.1;//延迟补偿？ Delay compensation?
             rotatedX = center.x + (float) (Math.cos(radians) * (now.x - center.x) - Math.sin(radians) * (now.z - center.z));
             rotatedZ = center.z + (float) (Math.sin(radians) * (now.x - center.x) + Math.cos(radians) * (now.z - center.z));
             PacketRelay.sendToServer(PacketHandler.INSTANCE, new SyncPosPacket(new Vec3(rotatedX, now.y+Math.sin(radians)*0.3, rotatedZ), getId()));
