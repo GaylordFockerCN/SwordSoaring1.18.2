@@ -108,10 +108,14 @@ public class RainScreenSwordEntity extends SwordEntity{
             double radians = tickCount * 0.1;
             double rotatedX = center.x + (float) (Math.cos(radians) * (now.x - center.x) - Math.sin(radians) * (now.z - center.z));
             double rotatedZ = center.z + (float) (Math.sin(radians) * (now.x - center.x) + Math.cos(radians) * (now.z - center.z));
-            Vec3 newPos = new Vec3(rotatedX, now.y+Math.sin(radians)*0.3, rotatedZ);
-            setPos(newPos);
+
+            setPos(new Vec3(rotatedX, now.y+Math.sin(radians)*0.3, rotatedZ));
+
             //不知道为何1.18下两端不同步
-//            PacketRelay.sendToServer(PacketHandler.INSTANCE, new SyncPosPacket(newPos, getId()));
+            radians = (tickCount + 10) * 0.1;//延迟补偿
+            rotatedX = center.x + (float) (Math.cos(radians) * (now.x - center.x) - Math.sin(radians) * (now.z - center.z));
+            rotatedZ = center.z + (float) (Math.sin(radians) * (now.x - center.x) + Math.cos(radians) * (now.z - center.z));
+            PacketRelay.sendToServer(PacketHandler.INSTANCE, new SyncPosPacket(new Vec3(rotatedX, now.y+Math.sin(radians)*0.3, rotatedZ), getId()));
         }
 
         SSPlayer ssPlayer = rider.getCapability(SSCapabilityProvider.SS_PLAYER).orElse(new SSPlayer());
