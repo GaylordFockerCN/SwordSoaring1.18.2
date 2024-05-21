@@ -16,6 +16,9 @@ import net.minecraftforge.network.PlayMessages;
 import net.p1nero.ss.SwordSoaring;
 import net.p1nero.ss.capability.SSCapabilityProvider;
 import net.p1nero.ss.capability.SSPlayer;
+import net.p1nero.ss.network.PacketHandler;
+import net.p1nero.ss.network.PacketRelay;
+import net.p1nero.ss.network.packet.server.SyncPosPacket;
 import yesman.epicfight.world.item.LongswordItem;
 import yesman.epicfight.world.item.TachiItem;
 import yesman.epicfight.world.item.UchigatanaItem;
@@ -97,13 +100,19 @@ public class RainScreenSwordEntity extends SwordEntity{
             return;
         }
 
-        //围绕rider旋转
-        Vec3 center = rider.getPosition(0.5f);
-        Vec3 now = center.add(getOffset());
-        double radians = tickCount * 0.1;
-        double rotatedX = center.x + (float) (Math.cos(radians) * (now.x - center.x) - Math.sin(radians) * (now.z - center.z));
-        double rotatedZ = center.z + (float) (Math.sin(radians) * (now.x - center.x) + Math.cos(radians) * (now.z - center.z));
-        setPos(new Vec3(rotatedX, now.y+Math.sin(radians)*0.3, rotatedZ));
+        //限制客户端执行，因为服务端客户端位置不知为何不同
+        if(level.isClientSide){
+            //围绕rider旋转
+            Vec3 center = rider.getPosition(1f);
+            Vec3 now = center.add(getOffset());
+            double radians = tickCount * 0.1;
+            double rotatedX = center.x + (float) (Math.cos(radians) * (now.x - center.x) - Math.sin(radians) * (now.z - center.z));
+            double rotatedZ = center.z + (float) (Math.sin(radians) * (now.x - center.x) + Math.cos(radians) * (now.z - center.z));
+            Vec3 newPos = new Vec3(rotatedX, now.y+Math.sin(radians)*0.3, rotatedZ);
+            setPos(newPos);
+            //不知道为何1.18下两端不同步
+//            PacketRelay.sendToServer(PacketHandler.INSTANCE, new SyncPosPacket(newPos, getId()));
+        }
 
         SSPlayer ssPlayer = rider.getCapability(SSCapabilityProvider.SS_PLAYER).orElse(new SSPlayer());
         if(this.tickCount > 200){
