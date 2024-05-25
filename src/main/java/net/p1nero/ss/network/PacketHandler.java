@@ -5,9 +5,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 import net.p1nero.ss.SwordSoaring;
-import net.p1nero.ss.network.packet.*;
-import net.p1nero.ss.network.packet.client.*;
-import net.p1nero.ss.network.packet.server.*;
+import net.p1nero.ss.network.packet.BasePacket;
+import net.p1nero.ss.network.packet.client.AddBladeRushSkillParticlePacket;
+import net.p1nero.ss.network.packet.client.AddSmokeParticlePacket;
+import net.p1nero.ss.network.packet.client.SetClientYakshaMaskTimePacket;
+import net.p1nero.ss.network.packet.client.SyncSwordOwnerPacket;
+import net.p1nero.ss.network.packet.server.StartFlyPacket;
+import net.p1nero.ss.network.packet.server.StartStellarRestorationPacket;
+import net.p1nero.ss.network.packet.server.StartYakshaJumpPacket;
+import net.p1nero.ss.network.packet.server.StopFlyPacket;
 
 import java.util.function.Function;
 
@@ -32,7 +38,6 @@ public class PacketHandler {
         //Server
         register(StartFlyPacket.class, StartFlyPacket::decode);
         register(StopFlyPacket.class, StopFlyPacket::decode);
-        register(SyncPosPacket.class, SyncPosPacket::decode);
         register(StartYakshaJumpPacket.class, StartYakshaJumpPacket::decode);
         register(StartStellarRestorationPacket.class, StartStellarRestorationPacket::decode);
 
