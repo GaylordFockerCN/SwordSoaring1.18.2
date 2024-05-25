@@ -5,6 +5,7 @@ import com.mojang.math.Vector3f;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -15,6 +16,7 @@ import net.minecraftforge.network.PlayMessages;
 import net.p1nero.ss.SwordSoaring;
 import net.p1nero.ss.capability.SSCapabilityProvider;
 import net.p1nero.ss.capability.SSPlayer;
+import yesman.epicfight.network.EpicFightDataSerializers;
 import yesman.epicfight.world.item.LongswordItem;
 import yesman.epicfight.world.item.TachiItem;
 import yesman.epicfight.world.item.UchigatanaItem;
@@ -38,11 +40,18 @@ public class RainScreenSwordEntity extends SwordEntity {
         EntityDataSerializers.INT
     );
 
+
+    private static final EntityDataAccessor<Vec3> OLD_POS = SynchedEntityData.defineId(
+        RainScreenSwordEntity.class,
+        EpicFightDataSerializers.VEC3
+    );
+
     public RainScreenSwordEntity(EntityType<?> p_19870_, Level p_19871_) {
         super(p_19870_, p_19871_);
         this.getEntityData().define(ITEM_STACK, ItemStack.EMPTY);
         this.getEntityData().define(RIDER_UUID, Optional.empty());
         this.getEntityData().define(RAIN_SCREEN_SWORD_ID, -1);
+        this.getEntityData().define(OLD_POS, position());
     }
 
     public RainScreenSwordEntity(PlayMessages.SpawnEntity spawnEntity, Level level) {
@@ -87,16 +96,18 @@ public class RainScreenSwordEntity extends SwordEntity {
 
         //限制客户端执行，因为服务端客户端位置不知为何不同
         //围绕rider旋转
-        Vec3 center = rider.position();
-        double radians = tickCount * 0.1 + (getRainScreenSwordId() * Math.PI / 2);
+        if (level instanceof ServerLevel) {
+            Vec3 center = rider.position();
+            double radians = tickCount * 0.1 + (getRainScreenSwordId() * Math.PI / 2);
 
-        var targetPos = new Vec3(
-            center.x + Math.cos(radians) * 1.3,
-            center.y + Math.sin(radians) * 0.3,
-            center.z + Math.sin(radians) * 1.3
-        );
-
-        moveTo(targetPos);
+            var targetPos = new Vec3(
+                center.x + Math.cos(radians) * 1.3,
+                center.y + Math.sin(radians) * 0.3 + 0.3,
+                center.z + Math.sin(radians) * 1.3
+            );
+            getEntityData().set(OLD_POS, new Vec3(xOld, yOld, zOld));
+            setPos(targetPos);
+        }
 
         SSPlayer ssPlayer = rider.getCapability(SSCapabilityProvider.SS_PLAYER).orElse(new SSPlayer());
         if (this.tickCount > 200) {
@@ -107,6 +118,17 @@ public class RainScreenSwordEntity extends SwordEntity {
             discard();
         }
 
+    }
+
+    @Override
+    public void onSyncedDataUpdated(final EntityDataAccessor<?> p_20059_) {
+        super.onSyncedDataUpdated(p_20059_);
+        if (level.isClientSide && OLD_POS.equals(p_20059_)) {
+            var oldPos = getEntityData().get(OLD_POS);
+            xOld = oldPos.x;
+            yOld = oldPos.y;
+            zOld = oldPos.z;
+        }
     }
 
     /**
