@@ -16,7 +16,7 @@ import net.minecraftforge.network.PlayMessages;
 import net.p1nero.ss.SwordSoaring;
 import net.p1nero.ss.capability.SSCapabilityProvider;
 import net.p1nero.ss.capability.SSPlayer;
-import net.p1nero.ss.util.SSEntityDataSerializers;
+import yesman.epicfight.network.EpicFightDataSerializers;
 import yesman.epicfight.world.item.LongswordItem;
 import yesman.epicfight.world.item.TachiItem;
 import yesman.epicfight.world.item.UchigatanaItem;
@@ -43,7 +43,7 @@ public class RainScreenSwordEntity extends SwordEntity {
 
     private static final EntityDataAccessor<Vec3> OLD_POS = SynchedEntityData.defineId(
         RainScreenSwordEntity.class,
-        SSEntityDataSerializers.POS
+        EpicFightDataSerializers.VEC3
     );
 
     public RainScreenSwordEntity(EntityType<?> p_19870_, Level p_19871_) {
