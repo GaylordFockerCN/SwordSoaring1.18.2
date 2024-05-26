@@ -35,6 +35,8 @@ authors="P1nero, Rapits" #optional
 # The description text for the mod (multi line!) (#mandatory)
 description='''
 You will enter the world of Chinese ancient martial arts novels, experiencing epic skills and heroic journeys!
+This is a modpack version! you can modify force_fly_anim in config!
+force_fly_anim: you can't play any other animations when flying except some weapon special anim (such as uchigatana and ender blaster)
 '''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
 [[dependencies.sword_soaring]] #optional

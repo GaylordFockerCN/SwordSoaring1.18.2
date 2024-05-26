@@ -16,7 +16,7 @@ plugins {
 apply plugin: 'net.minecraftforge.gradle'
 
 
-version = '1.11.7'
+version = '1.11.7for_modpack'
 group = 'net.p1nero.ss' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'sword_soaring-forge1.18.2'
 

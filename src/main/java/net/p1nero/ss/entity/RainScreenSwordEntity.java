@@ -102,7 +102,7 @@ public class RainScreenSwordEntity extends SwordEntity {
 
             var targetPos = new Vec3(
                 center.x + Math.cos(radians) * 1.3,
-                center.y + Math.sin(radians) * 0.3 + 0.3,
+                center.y + Math.sin(tickCount * 0.1) * 0.3 + 0.3,
                 center.z + Math.sin(radians) * 1.3
             );
             getEntityData().set(OLD_POS, new Vec3(xOld, yOld, zOld));
@@ -134,9 +134,7 @@ public class RainScreenSwordEntity extends SwordEntity {
     /**
      * 痛苦地调位置
      * 雨帘剑的位置又他妈不一样...
-     *
      * @param poseStack 来自Renderer的render
-     *                  FIXME
      */
     @Override
     public void setPose(PoseStack poseStack) {

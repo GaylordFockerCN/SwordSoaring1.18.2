@@ -3,8 +3,7 @@ package net.p1nero.ss;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
@@ -35,6 +34,7 @@ import yesman.epicfight.config.ConfigManager;
 import yesman.epicfight.data.loot.function.SetSkillFunction;
 import yesman.epicfight.world.item.EpicFightItems;
 
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Mod(SwordSoaring.MOD_ID)
@@ -80,9 +80,16 @@ public class SwordSoaring {
     public static boolean isValidSword(ItemStack sword){
         //不知为何无法监听
         if(Config.swordItems.isEmpty()){
-            Config.swordItems = Config.ITEM_STRINGS.get().stream()
+            Config.swordItems = Config.ITEMS_CAN_FLY.get().stream()
                     .map(itemName -> ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemName)))
                     .collect(Collectors.toSet());
+            Config.notSwordItems = Config.ITEMS_CAN_NOT_FLY.get().stream()
+                    .map(itemName -> ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemName)))
+                    .collect(Collectors.toSet());
+            Config.swordItems.removeAll(Config.notSwordItems);
+        }
+        if(Config.notSwordItems.contains(sword.getItem())){
+            return false;
         }
         return sword.getItem() instanceof SwordItem  || Config.swordItems.contains(sword.getItem());
     }
@@ -105,7 +112,7 @@ public class SwordSoaring {
         /**
          * 把技能书加到箱子里
          */
-        @SubscribeEvent
+//        @SubscribeEvent
         public static void modifyVanillaLootPools(final LootTableLoadEvent event) {
 
             int modifier = ConfigManager.SKILL_BOOK_CHEST_LOOT_MODIFYER.get();
@@ -113,16 +120,13 @@ public class SwordSoaring {
             int antiDropChance = 100 - modifier;
             float dropChanceModifier = dropChance / (float) (antiDropChance + dropChance);
 
-            String[] skills = new String[]{"sword_soaring:sword_soaring"};
-            if(Config.ENABLE_BETA_SKILL.get()) {
-                skills = new String[]{
-                        "sword_soaring:sword_soaring",
-                        "sword_soaring:rain_cutter",
-                        "sword_soaring:yaksha_mask",
-                        "sword_soaring:stellar_restoration",
-                        "sword_soaring:rain_screen"
-                };
-            }
+            String[] skills = new String[]{
+                    "sword_soaring:sword_soaring",
+                    "sword_soaring:rain_cutter",
+                    "sword_soaring:yaksha_mask",
+                    "sword_soaring:stellar_restoration",
+                    "sword_soaring:rain_screen"
+            };
 
             //1.18.2 has no ancient city lol
 //            if (event.getName().equals(BuiltInLootTables.ANCIENT_CITY)) {

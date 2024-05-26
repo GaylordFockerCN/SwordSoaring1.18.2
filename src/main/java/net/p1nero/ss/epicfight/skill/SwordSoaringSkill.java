@@ -15,6 +15,7 @@ import net.p1nero.ss.SwordSoaring;
 import net.p1nero.ss.capability.SSCapabilityProvider;
 import net.p1nero.ss.capability.SSPlayer;
 import net.p1nero.ss.enchantment.ModEnchantments;
+import net.p1nero.ss.epicfight.animation.ModAnimations;
 import net.p1nero.ss.keymapping.ModKeyMappings;
 import net.p1nero.ss.network.PacketHandler;
 import net.p1nero.ss.network.PacketRelay;
@@ -49,6 +50,28 @@ public class SwordSoaringSkill extends Skill {
         super.onInitiate(container);
 
         PlayerEventListener listener = container.getExecuter().getEventListener();
+        listener.addEventListener(PlayerEventListener.EventType.SKILL_EXECUTE_EVENT, EVENT_UUID, (event) -> {
+            event.getPlayerPatch().getOriginal().getCapability(SSCapabilityProvider.SS_PLAYER).ifPresent(ssPlayer -> {
+                if(Config.FORCE_FLY_ANIM.get() && ssPlayer.isFlying() && (!event.getSkillContainer().hasSkill(ModSkills.SWORD_SOARING))){
+                    event.setCanceled(true);
+                }
+            });
+        });
+//        listener.addEventListener(PlayerEventListener.EventType.ACTION_EVENT_CLIENT, EVENT_UUID, (event) -> {
+//            event.getPlayerPatch().getOriginal().getCapability(SSCapabilityProvider.SS_PLAYER).ifPresent(ssPlayer -> {
+//                if(Config.FORCE_FLY_ANIM.get() && ssPlayer.isFlying() && (event.getAnimation() != ModAnimations.FLY_ON_SWORD_ADVANCED || event.getAnimation() != ModAnimations.FLY_ON_SWORD_BASIC)){
+//                    event.setCanceled(true);
+//                }
+//            });
+//        });
+//        listener.addEventListener(PlayerEventListener.EventType.ACTION_EVENT_SERVER, EVENT_UUID, (event) -> {
+//            event.getPlayerPatch().getOriginal().getCapability(SSCapabilityProvider.SS_PLAYER).ifPresent(ssPlayer -> {
+//                if(Config.FORCE_FLY_ANIM.get() && ssPlayer.isFlying() && (event.getAnimation() != ModAnimations.FLY_ON_SWORD_ADVANCED || event.getAnimation() != ModAnimations.FLY_ON_SWORD_BASIC)){
+//                    event.setCanceled(true);
+//                }
+//            });
+//        });
+
 
         listener.addEventListener(PlayerEventListener.EventType.MOVEMENT_INPUT_EVENT, EVENT_UUID, (event) -> {
 
@@ -211,6 +234,8 @@ public class SwordSoaringSkill extends Skill {
         PlayerEventListener listener = container.getExecuter().getEventListener();
         listener.removeListener(PlayerEventListener.EventType.MOVEMENT_INPUT_EVENT, EVENT_UUID);
         listener.removeListener(PlayerEventListener.EventType.HURT_EVENT_PRE, EVENT_UUID);
+        listener.removeListener(PlayerEventListener.EventType.SKILL_EXECUTE_EVENT, EVENT_UUID);
+//        listener.removeListener(PlayerEventListener.EventType.ACTION_EVENT_CLIENT, EVENT_UUID);
     }
 
 }
