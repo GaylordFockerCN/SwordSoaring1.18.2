@@ -238,4 +238,14 @@ public class SwordSoaringSkill extends Skill {
 //        listener.removeListener(PlayerEventListener.EventType.ACTION_EVENT_CLIENT, EVENT_UUID);
     }
 
+
+    /**
+     * 解决跳跃延迟的关键！
+     * 感谢SettingDust大大
+     */
+    @Override
+    public boolean canExecute(PlayerPatch<?> executer) {
+        return false;
+    }
+
 }
