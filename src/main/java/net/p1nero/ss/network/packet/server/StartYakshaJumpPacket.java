@@ -8,7 +8,6 @@ import net.p1nero.ss.capability.SSCapabilityProvider;
 import net.p1nero.ss.capability.SSPlayer;
 import net.p1nero.ss.epicfight.animation.ModAnimations;
 import net.p1nero.ss.network.packet.BasePacket;
-import yesman.epicfight.api.utils.LevelUtil;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.particle.EpicFightParticles;
@@ -37,36 +36,36 @@ public record StartYakshaJumpPacket(int tick) implements BasePacket {
     @Override
     public void execute(@Nullable Player player) {
         if (player != null && player.getServer() != null) {
-            player.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).ifPresent(entityPatch -> {
-
-                if(entityPatch instanceof ServerPlayerPatch caster){
-                    SSPlayer ssPlayer = player.getCapability(SSCapabilityProvider.SS_PLAYER).orElse(new SSPlayer());
-                    if(SwordSoaring.isWOMLoaded() && !(caster.hasStamina(6) || player.isCreative())){
-                        ssPlayer.setProtectNextFall(true);
-                        return;
-                    }
-                    ssPlayer.setProtectNextFall(true);
-                    if(SwordSoaring.isWOMLoaded()){
-                        ssPlayer.isYakshaFall = true;
-                    }
-                    caster.playSound(EpicFightSounds.ROCKET_JUMP, 1.0F, 0.0F, 0.0F);
-                    caster.playSound(EpicFightSounds.ENTITY_MOVE, 1.0F, 0.0F, 0.0F);
-                    LevelUtil.circleSlamFracture(null, caster.getOriginal().level, caster.getOriginal().position().subtract(0.0, 1.0, 0.0), (double)tick * 5 * 0.05, true, false, false);
-                    Vec3 entityEyePos = caster.getOriginal().getEyePosition();
-                    EpicFightParticles.AIR_BURST.get().spawnParticleWithArgument(caster.getOriginal().getLevel(), entityEyePos.x, entityEyePos.y, entityEyePos.z, 0.0, 0.0, 2.0 + 0.05 * (double)tick);
-
-                    if(SwordSoaring.isWOMLoaded()){
-                        if(!player.isCreative()){
-                            caster.consumeStamina(6);
-                        }
-                        caster.playAnimationSynchronized(ModAnimations.AGONY_PLUNGE_FORWARD, 0.0F);
-                    }else {
-                        caster.consumeStamina(2f);
-                        caster.playAnimationSynchronized(Animations.BIPED_DEMOLITION_LEAP, 0.0F);
-                    }
-
-                }
-            });
+//            player.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).ifPresent(entityPatch -> {
+//
+//                if(entityPatch instanceof ServerPlayerPatch caster){
+//                    SSPlayer ssPlayer = player.getCapability(SSCapabilityProvider.SS_PLAYER).orElse(new SSPlayer());
+//                    if(SwordSoaring.isWOMLoaded() && !(caster.hasStamina(6) || player.isCreative())){
+//                        ssPlayer.setProtectNextFall(true);
+//                        return;
+//                    }
+//                    ssPlayer.setProtectNextFall(true);
+//                    if(SwordSoaring.isWOMLoaded()){
+//                        ssPlayer.isYakshaFall = true;
+//                    }
+//                    caster.playSound(EpicFightSounds.ROCKET_JUMP, 1.0F, 0.0F, 0.0F);
+//                    caster.playSound(EpicFightSounds.ENTITY_MOVE, 1.0F, 0.0F, 0.0F);
+//                    LevelUtil.circleSlamFracture(null, caster.getOriginal().level, caster.getOriginal().position().subtract(0.0, 1.0, 0.0), (double)tick * 5 * 0.05, true, false, false);
+//                    Vec3 entityEyePos = caster.getOriginal().getEyePosition();
+//                    EpicFightParticles.AIR_BURST.get().spawnParticleWithArgument(caster.getOriginal().getLevel(), entityEyePos.x, entityEyePos.y, entityEyePos.z, 0.0, 0.0, 2.0 + 0.05 * (double)tick);
+//
+//                    if(SwordSoaring.isWOMLoaded()){
+//                        if(!player.isCreative()){
+//                            caster.consumeStamina(6);
+//                        }
+//                        caster.playAnimationSynchronized(ModAnimations.AGONY_PLUNGE_FORWARD, 0.0F);
+//                    }else {
+//                        caster.consumeStamina(2f);
+//                        caster.playAnimationSynchronized(Animations.BIPED_DEMOLITION_LEAP, 0.0F);
+//                    }
+//
+//                }
+//            });
         }
     }
 }

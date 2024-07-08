@@ -11,7 +11,6 @@ import net.p1nero.ss.network.packet.client.AddSmokeParticlePacket;
 import net.p1nero.ss.network.packet.client.SetClientYakshaMaskTimePacket;
 import net.p1nero.ss.network.packet.client.SyncSwordOwnerPacket;
 import net.p1nero.ss.network.packet.server.StartFlyPacket;
-import net.p1nero.ss.network.packet.server.StartStellarRestorationPacket;
 import net.p1nero.ss.network.packet.server.StartYakshaJumpPacket;
 import net.p1nero.ss.network.packet.server.StopFlyPacket;
 
@@ -38,8 +37,6 @@ public class PacketHandler {
         //Server
         register(StartFlyPacket.class, StartFlyPacket::decode);
         register(StopFlyPacket.class, StopFlyPacket::decode);
-        register(StartYakshaJumpPacket.class, StartYakshaJumpPacket::decode);
-        register(StartStellarRestorationPacket.class, StartStellarRestorationPacket::decode);
 
     }
 

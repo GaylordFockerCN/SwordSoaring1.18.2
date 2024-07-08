@@ -16,7 +16,7 @@ plugins {
 apply plugin: 'net.minecraftforge.gradle'
 
 
-version = '1.11.7for_modpack'
+version = '_stellar'
 group = 'net.p1nero.ss' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'sword_soaring-forge1.18.2'
 
@@ -159,8 +159,10 @@ dependencies {
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft 'net.minecraftforge:forge:1.18.2-40.2.17'
 //    implementation fg.deobf("curse.maven:epicfight-405076:5148975")
-    implementation fg.deobf("libs:EpicFight:18.5.24")
-    implementation fg.deobf("libs:WeaponsOfMiracles:18.1.7.38")
+    implementation fg.deobf("libs:EpicFight:18.3.8")
+//    implementation fg.deobf("libs:WeaponsOfMiracles:18.1.7.38")
+    implementation fg.deobf("libs:yamatomoveset:18.0.6")
+    implementation fg.deobf("libs:epicaddon:18.0.6.74-hotfix")
     // Real mod deobf dependency examples - these get remapped to your current mappings
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api") // Adds JEI API as a compile dependency
     // runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}") // Adds the full JEI mod as a runtime dependency

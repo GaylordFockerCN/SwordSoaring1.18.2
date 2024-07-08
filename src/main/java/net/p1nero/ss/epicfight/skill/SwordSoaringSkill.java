@@ -10,6 +10,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.p1nero.ss.Config;
 import net.p1nero.ss.SwordSoaring;
 import net.p1nero.ss.capability.SSCapabilityProvider;
@@ -50,33 +51,18 @@ public class SwordSoaringSkill extends Skill {
         super.onInitiate(container);
 
         PlayerEventListener listener = container.getExecuter().getEventListener();
-        listener.addEventListener(PlayerEventListener.EventType.SKILL_EXECUTE_EVENT, EVENT_UUID, (event) -> {
-            event.getPlayerPatch().getOriginal().getCapability(SSCapabilityProvider.SS_PLAYER).ifPresent(ssPlayer -> {
-                if(Config.FORCE_FLY_ANIM.get() && ssPlayer.isFlying() && (!event.getSkillContainer().hasSkill(ModSkills.SWORD_SOARING))){
-                    event.setCanceled(true);
-                }
-            });
-        });
-//        listener.addEventListener(PlayerEventListener.EventType.ACTION_EVENT_CLIENT, EVENT_UUID, (event) -> {
+//        listener.addEventListener(PlayerEventListener.EventType.SKILL_EXECUTE_EVENT, EVENT_UUID, (event) -> {
 //            event.getPlayerPatch().getOriginal().getCapability(SSCapabilityProvider.SS_PLAYER).ifPresent(ssPlayer -> {
-//                if(Config.FORCE_FLY_ANIM.get() && ssPlayer.isFlying() && (event.getAnimation() != ModAnimations.FLY_ON_SWORD_ADVANCED || event.getAnimation() != ModAnimations.FLY_ON_SWORD_BASIC)){
+//                if(Config.FORCE_FLY_ANIM.get() && ssPlayer.isFlying() && (!event.getSkillContainer().hasSkill(ModSkills.SWORD_SOARING))){
 //                    event.setCanceled(true);
 //                }
 //            });
 //        });
-//        listener.addEventListener(PlayerEventListener.EventType.ACTION_EVENT_SERVER, EVENT_UUID, (event) -> {
-//            event.getPlayerPatch().getOriginal().getCapability(SSCapabilityProvider.SS_PLAYER).ifPresent(ssPlayer -> {
-//                if(Config.FORCE_FLY_ANIM.get() && ssPlayer.isFlying() && (event.getAnimation() != ModAnimations.FLY_ON_SWORD_ADVANCED || event.getAnimation() != ModAnimations.FLY_ON_SWORD_BASIC)){
-//                    event.setCanceled(true);
-//                }
-//            });
-//        });
-
 
         listener.addEventListener(PlayerEventListener.EventType.MOVEMENT_INPUT_EVENT, EVENT_UUID, (event) -> {
 
             // Check directly from the keybind because event.getMovementInput().isJumping doesn't allow to be set as true while player's jumping
-            boolean jumpPressed = Minecraft.getInstance().options.keyJump.isDown();
+            boolean jumpPressed = ModKeyMappings.TAKE_OFF.isDown();
 
             Player player = container.getExecuter().getOriginal();
             ItemStack sword = player.getMainHandItem();
@@ -119,31 +105,22 @@ public class SwordSoaringSkill extends Skill {
 
         });
 
-        //取消免疫摔落伤害
-        listener.addEventListener(PlayerEventListener.EventType.HURT_EVENT_PRE, EVENT_UUID, (event) -> {
-            if (event.getDamageSource().isFall() ) {
-                Player player = event.getPlayerPatch().getOriginal();
-                player.getCapability(SSCapabilityProvider.SS_PLAYER).ifPresent(ssPlayer -> {
-                    if(ssPlayer.isProtectNextFall()){
-                        ssPlayer.setProtectNextFall(false);
-                    }
-                });
-            }
-        });
+    }
 
-        //调整下落伤害，不然高飞低会扣血
-        listener.addEventListener(PlayerEventListener.EventType.FALL_EVENT, EVENT_UUID, (event) -> {
-            Player player = event.getPlayerPatch().getOriginal();
+    /**
+     * 调整下落伤害，不然高飞低会扣血
+     */
+    public static void onPlayerFall(LivingFallEvent event){
+        if(event.getEntity() instanceof Player player){
             player.getCapability(SSCapabilityProvider.SS_PLAYER).ifPresent(ssPlayer -> {
                 //-1表示不作修改，高度变高也是错误的计算
-                if(ssPlayer.flyHeight == -1 || ssPlayer.flyHeight > event.getForgeEvent().getDistance()){
+                if(ssPlayer.flyHeight == -1 || ssPlayer.flyHeight > event.getDistance()){
                     return;
                 }
-                event.getForgeEvent().setDistance(((int) ssPlayer.flyHeight));
+                event.setDistance(((int) ssPlayer.flyHeight));
                 ssPlayer.flyHeight = -1;
             });
-        });
-
+        }
     }
 
     /**
@@ -190,7 +167,7 @@ public class SwordSoaringSkill extends Skill {
                                 case 2 -> 0.5f;
                                 default -> 1;
                             };
-                            playerPatch.consumeStamina(Config.STAMINA_CONSUME_PER_TICK.get().floatValue() * scale * flySpeedLevel);
+                            playerPatch.setStamina(playerPatch.getStamina() - Config.STAMINA_CONSUME_PER_TICK.get().floatValue() * scale * flySpeedLevel);
                         }
                     }
                 });
@@ -233,9 +210,6 @@ public class SwordSoaringSkill extends Skill {
         super.onRemoved(container);
         PlayerEventListener listener = container.getExecuter().getEventListener();
         listener.removeListener(PlayerEventListener.EventType.MOVEMENT_INPUT_EVENT, EVENT_UUID);
-        listener.removeListener(PlayerEventListener.EventType.HURT_EVENT_PRE, EVENT_UUID);
-        listener.removeListener(PlayerEventListener.EventType.SKILL_EXECUTE_EVENT, EVENT_UUID);
-//        listener.removeListener(PlayerEventListener.EventType.ACTION_EVENT_CLIENT, EVENT_UUID);
     }
 
 

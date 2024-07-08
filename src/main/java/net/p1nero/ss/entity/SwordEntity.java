@@ -25,9 +25,9 @@ import net.p1nero.ss.SwordSoaring;
 import net.p1nero.ss.capability.SSCapabilityProvider;
 import net.p1nero.ss.util.ClientHelper;
 import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.world.item.KatanaItem;
 import yesman.epicfight.world.item.LongswordItem;
 import yesman.epicfight.world.item.TachiItem;
-import yesman.epicfight.world.item.UchigatanaItem;
 
 import java.util.List;
 import java.util.Optional;
@@ -128,7 +128,7 @@ public class SwordEntity extends Entity implements AbstractSwordEntity{
     public void setPose(PoseStack poseStack){
         poseStack.mulPose(Vector3f.XP.rotationDegrees(90f));
         Item sword = getItemStack().getItem();
-        if(sword instanceof UchigatanaItem || sword instanceof TachiItem || sword instanceof LongswordItem){
+        if(sword instanceof KatanaItem || sword instanceof TachiItem || sword instanceof LongswordItem){
             poseStack.mulPose(Vector3f.ZP.rotationDegrees(45f + getYRot()));
         }else {
             poseStack.mulPose(Vector3f.ZP.rotationDegrees(-45f + getYRot()));
