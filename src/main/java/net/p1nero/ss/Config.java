@@ -22,6 +22,7 @@ import java.util.Set;
 public class Config
 {
     private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
+    public static final ForgeConfigSpec.BooleanValue ENABLE_LOOT_TABLE;
     public static final ForgeConfigSpec.DoubleValue RAIN_SCREEN_COOLDOWN;
     public static final ForgeConfigSpec.DoubleValue RAIN_CUTTER_COOLDOWN;
     public static final ForgeConfigSpec.DoubleValue YAKSHAS_MASK_COOLDOWN;
@@ -38,6 +39,7 @@ public class Config
     static final ForgeConfigSpec SPEC;
 
     static {
+        ENABLE_LOOT_TABLE = createBool("if true, you can get all skill books via fishing, end city, ancient city and strong hold library. or you have to add loot table yourself(for mod pack author)","enable_loot_table", true);
 
         BUILDER.push("Skill Cooldown");
         RAIN_SCREEN_COOLDOWN = createDouble("the cooldown ticks of Rain Screen skill", "rain_screen_cooldown", 862);

@@ -42,6 +42,11 @@ public class SwordSoaringSkill extends Skill {
 
     public static float flySpeedLevel = 1;
 
+    @Override
+    public boolean canExecute(PlayerPatch<?> executer) {
+        return false;
+    }
+
     /**
      * 注册监听器
      */

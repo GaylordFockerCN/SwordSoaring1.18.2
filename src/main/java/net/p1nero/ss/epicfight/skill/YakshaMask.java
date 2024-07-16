@@ -1,6 +1,7 @@
 package net.p1nero.ss.epicfight.skill;
 
 import com.google.common.collect.Maps;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -33,6 +34,7 @@ import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.gameasset.Animations;
+import yesman.epicfight.gameasset.EpicFightSkills;
 import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.skill.*;
 import yesman.epicfight.skill.passive.PassiveSkill;
@@ -270,9 +272,9 @@ public class YakshaMask extends Skill {
         SSPlayer ssPlayer = player.getCapability(SSCapabilityProvider.SS_PLAYER).orElse(new SSPlayer());
         poseStack.pushPose();
         poseStack.translate(0, (float)gui.getSlidingProgression(), 0);
-//        GuiComponent.blit(poseStack, (int)x, (int)y, 24, 24, 0, 0, 1, 1, 1, 1);
-        GuiComponent.drawString(poseStack ,gui.font, String.format("YM %d", (ssPlayer.yakshaMaskCooldownTimer / 40)), (int) (x + 4), (int) (y + 6), 16777215);
-        poseStack.popPose();
+        RenderSystem.setShaderTexture(0, getSkillTexture());
+        GuiComponent.blit(poseStack, (int)x, (int)y, 24, 24, 0.0F, 0.0F, 1, 1, 1, 1);
+        GuiComponent.drawString(poseStack ,gui.font, String.format("%d", (ssPlayer.yakshaMaskCooldownTimer / 40)), (int) (x + 4), (int) (y + 6), 16777215);
     }
 
     public static class Builder extends Skill.Builder<YakshaMask> {

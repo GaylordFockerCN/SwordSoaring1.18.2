@@ -1,5 +1,6 @@
 package net.p1nero.ss.epicfight.skill;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.server.level.ServerPlayer;
@@ -131,9 +132,9 @@ public class RainCutter extends Skill {
         SSPlayer ssPlayer = player.getCapability(SSCapabilityProvider.SS_PLAYER).orElse(new SSPlayer());
         poseStack.pushPose();
         poseStack.translate(0, (float)gui.getSlidingProgression(), 0);
-//        GuiComponent.blit(poseStack, (int)x, (int)y, 24, 24, 0, 0, 1, 1, 1, 1);
-        GuiComponent.drawString(poseStack ,gui.font, String.format("RC %d", (ssPlayer.rainCutterCooldownTimer / 40)), (int) (x + 4), (int) (y + 6), 16777215);
-        poseStack.popPose();
+        RenderSystem.setShaderTexture(0, getSkillTexture());
+        GuiComponent.blit(poseStack, (int)x, (int)y, 24, 24, 0.0F, 0.0F, 1, 1, 1, 1);
+        GuiComponent.drawString(poseStack ,gui.font, String.format("%d", (ssPlayer.rainCutterCooldownTimer / 40)), (int) (x + 4), (int) (y + 6), 16777215);
     }
 
 }
