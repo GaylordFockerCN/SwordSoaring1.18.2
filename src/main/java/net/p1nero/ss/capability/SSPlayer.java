@@ -17,7 +17,6 @@ public class SSPlayer {
     private boolean isFlying;
     private boolean protectNextFall;
     private boolean hasSwordEntity;
-    public int swordSoaringCooldownTimer;
     private int swordScreenEntityCount;
     public int rainScreenCooldownTimer;
     private int rainCutterTimer;

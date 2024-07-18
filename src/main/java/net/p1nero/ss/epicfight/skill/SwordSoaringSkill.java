@@ -130,7 +130,7 @@ public class SwordSoaringSkill extends Skill {
                 // Check directly from the keybind because event.getMovementInput().isJumping doesn't allow to be set as true while player's jumping
                 boolean fly = ModKeyMappings.FLY.isDown();
                 if(ModKeyMappings.FLY.isRelease()){
-                    ssPlayer.swordSoaringCooldownTimer = Config.SWORD_SOARING_COOLDOWN.get().intValue();
+                    container.getDataManager().setData(COOL_DOWN_TIMER, Config.SWORD_SOARING_COOLDOWN.get().intValue());
                 }
                 //最后一个条件是防止飞行的时候切物品会导致永久飞行不掉落。必须是剑或者被视为剑的物品才可以“御”。player.isInWater没吊用。。
                 if (!fly || container.getExecuter().getOriginal().getVehicle() != null || container.getExecuter().getOriginal().getAbilities().flying || !container.getExecuter().isBattleMode()
@@ -180,7 +180,7 @@ public class SwordSoaringSkill extends Skill {
         poseStack.translate(0.0, (float)gui.getSlidingProgression(), 0.0);
         RenderSystem.setShaderTexture(0, getSkillTexture());
         GuiComponent.blit(poseStack, (int)x, (int)y, 24, 24, 0.0F, 0.0F, 1, 1, 1, 1);
-        gui.font.drawShadow(poseStack, String.format("%.1f", container.getDataManager().getDataValue(COOL_DOWN_TIMER)/40.0), x, y + 6.0F, 16777215);
+        gui.font.drawShadow(poseStack, String.format("%.1f", (container.getDataManager().getDataValue(COOL_DOWN_TIMER) / 20.0)), x, y + 6.0F, 16777215);
     }
 
     /**
