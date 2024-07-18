@@ -19,5 +19,7 @@
   "config.sword_soaring.stamina_consume_per_tick": "the stamina consumed per tick when flying",
   "config.sword_soaring.max_anticipation_tick": "ticks of pre taking off",
   "enchantment.sword_soaring.sword_soaring": "Enhance Sword Soaring Stamina",
-  "key.sword_soaring.change_speed": "Change Flying Speed"
+  "key.sword_soaring.common": "Epic Fight: Sword Soaring",
+  "key.sword_soaring.change_speed": "Change Flying Speed",
+  "key.sword_soaring.fly": "Start Flying"
 }

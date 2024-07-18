@@ -1,6 +1,9 @@
 package net.p1nero.ss.epicfight.skill;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -21,8 +24,11 @@ import net.p1nero.ss.network.PacketHandler;
 import net.p1nero.ss.network.PacketRelay;
 import net.p1nero.ss.network.packet.server.StartFlyPacket;
 import net.p1nero.ss.network.packet.server.StopFlyPacket;
+import yesman.epicfight.client.gui.BattleModeGui;
+import yesman.epicfight.gameasset.EpicFightSkills;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.skill.SkillDataManager;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
@@ -36,11 +42,13 @@ public class SwordSoaringSkill extends Skill {
 
     private static final UUID EVENT_UUID = UUID.fromString("051a9bb2-7541-11ee-b962-0242ac114514");
 
+    private static final SkillDataManager.SkillDataKey<Integer> COOL_DOWN_TIMER = SkillDataManager.SkillDataKey.createDataKey(SkillDataManager.ValueType.INTEGER);
+
     public SwordSoaringSkill(Builder<? extends Skill> builder) {
         super(builder);
     }
 
-    public static float flySpeedLevel = 1;
+    public static float flySpeedLevel = 1;//还好只在客户端用，不然全服同步了。。
 
     @Override
     public boolean canExecute(PlayerPatch<?> executer) {
@@ -53,6 +61,7 @@ public class SwordSoaringSkill extends Skill {
     @Override
     public void onInitiate(SkillContainer container) {
         super.onInitiate(container);
+        container.getDataManager().registerData(COOL_DOWN_TIMER);
 
         PlayerEventListener listener = container.getExecuter().getEventListener();
         listener.addEventListener(PlayerEventListener.EventType.SKILL_EXECUTE_EVENT, EVENT_UUID, (event) -> {
@@ -77,20 +86,55 @@ public class SwordSoaringSkill extends Skill {
 //            });
 //        });
 
+        //取消免疫摔落伤害
+        listener.addEventListener(PlayerEventListener.EventType.HURT_EVENT_PRE, EVENT_UUID, (event) -> {
+            if (event.getDamageSource().isFall() ) {
+                Player player = event.getPlayerPatch().getOriginal();
+                player.getCapability(SSCapabilityProvider.SS_PLAYER).ifPresent(ssPlayer -> {
+                    if(ssPlayer.isProtectNextFall()){
+                        ssPlayer.setProtectNextFall(false);
+                    }
+                });
+            }
+        });
 
-        listener.addEventListener(PlayerEventListener.EventType.MOVEMENT_INPUT_EVENT, EVENT_UUID, (event) -> {
+        //调整下落伤害，不然高飞低会扣血
+        listener.addEventListener(PlayerEventListener.EventType.FALL_EVENT, EVENT_UUID, (event) -> {
+            Player player = event.getPlayerPatch().getOriginal();
+            player.getCapability(SSCapabilityProvider.SS_PLAYER).ifPresent(ssPlayer -> {
+                //-1表示不作修改，高度变高也是错误的计算
+                if(ssPlayer.flyHeight == -1 || ssPlayer.flyHeight > event.getForgeEvent().getDistance()){
+                    return;
+                }
+                event.getForgeEvent().setDistance(((int) ssPlayer.flyHeight));
+                ssPlayer.flyHeight = -1;
+            });
+        });
 
-            // Check directly from the keybind because event.getMovementInput().isJumping doesn't allow to be set as true while player's jumping
-            boolean jumpPressed = Minecraft.getInstance().options.keyJump.isDown();
+    }
+
+    @Override
+    public void updateContainer(SkillContainer container) {
+        super.updateContainer(container);
+        if(container.getExecuter().isLogicalClient()){
 
             Player player = container.getExecuter().getOriginal();
             ItemStack sword = player.getMainHandItem();
 
             player.getCapability(SSCapabilityProvider.SS_PLAYER).ifPresent(ssPlayer -> {
-
+                int currentCoolDown = container.getDataManager().getDataValue(COOL_DOWN_TIMER);
+                if(currentCoolDown > 0){
+                    container.getDataManager().setData(COOL_DOWN_TIMER, currentCoolDown-1);
+                    return;
+                }
+                // Check directly from the keybind because event.getMovementInput().isJumping doesn't allow to be set as true while player's jumping
+                boolean fly = ModKeyMappings.FLY.isDown();
+                if(ModKeyMappings.FLY.isRelease()){
+                    ssPlayer.swordSoaringCooldownTimer = Config.SWORD_SOARING_COOLDOWN.get().intValue();
+                }
                 //最后一个条件是防止飞行的时候切物品会导致永久飞行不掉落。必须是剑或者被视为剑的物品才可以“御”。player.isInWater没吊用。。
-                if (!jumpPressed || event.getPlayerPatch().getOriginal().getVehicle() != null || event.getPlayerPatch().getOriginal().getAbilities().flying || !event.getPlayerPatch().isBattleMode()
-                        || event.getPlayerPatch().getStamina() <= 0.1f || player.isInLava() || player.isUnderWater() || !(SwordSoaring.isValidSword(sword) || ssPlayer.hasSwordEntity())) {
+                if (!fly || container.getExecuter().getOriginal().getVehicle() != null || container.getExecuter().getOriginal().getAbilities().flying || !container.getExecuter().isBattleMode()
+                        || container.getExecuter().getStamina() <= 0.1f || player.isInLava() || player.isUnderWater() || !(SwordSoaring.isValidSword(sword) || ssPlayer.hasSwordEntity())) {
                     //停止飞行
                     PacketRelay.sendToServer(PacketHandler.INSTANCE, new StopFlyPacket());
                     //飞行结束后再获取末向量。因为此时isFlying还没设为false
@@ -122,33 +166,21 @@ public class SwordSoaringSkill extends Skill {
 
             });
 
-        });
+        }
+    }
 
-        //取消免疫摔落伤害
-        listener.addEventListener(PlayerEventListener.EventType.HURT_EVENT_PRE, EVENT_UUID, (event) -> {
-            if (event.getDamageSource().isFall() ) {
-                Player player = event.getPlayerPatch().getOriginal();
-                player.getCapability(SSCapabilityProvider.SS_PLAYER).ifPresent(ssPlayer -> {
-                    if(ssPlayer.isProtectNextFall()){
-                        ssPlayer.setProtectNextFall(false);
-                    }
-                });
-            }
-        });
+    @Override
+    public boolean shouldDraw(SkillContainer container) {
+        return container.getDataManager().getDataValue(COOL_DOWN_TIMER) > 0;
+    }
 
-        //调整下落伤害，不然高飞低会扣血
-        listener.addEventListener(PlayerEventListener.EventType.FALL_EVENT, EVENT_UUID, (event) -> {
-            Player player = event.getPlayerPatch().getOriginal();
-            player.getCapability(SSCapabilityProvider.SS_PLAYER).ifPresent(ssPlayer -> {
-                //-1表示不作修改，高度变高也是错误的计算
-                if(ssPlayer.flyHeight == -1 || ssPlayer.flyHeight > event.getForgeEvent().getDistance()){
-                    return;
-                }
-                event.getForgeEvent().setDistance(((int) ssPlayer.flyHeight));
-                ssPlayer.flyHeight = -1;
-            });
-        });
-
+    @Override
+    public void drawOnGui(BattleModeGui gui, SkillContainer container, PoseStack poseStack, float x, float y) {
+        poseStack.pushPose();
+        poseStack.translate(0.0, (float)gui.getSlidingProgression(), 0.0);
+        RenderSystem.setShaderTexture(0, getSkillTexture());
+        GuiComponent.blit(poseStack, (int)x, (int)y, 24, 24, 0.0F, 0.0F, 1, 1, 1, 1);
+        gui.font.drawShadow(poseStack, String.format("%.1f", container.getDataManager().getDataValue(COOL_DOWN_TIMER)/40.0), x, y + 6.0F, 16777215);
     }
 
     /**
@@ -237,10 +269,9 @@ public class SwordSoaringSkill extends Skill {
     public void onRemoved(SkillContainer container) {
         super.onRemoved(container);
         PlayerEventListener listener = container.getExecuter().getEventListener();
-        listener.removeListener(PlayerEventListener.EventType.MOVEMENT_INPUT_EVENT, EVENT_UUID);
         listener.removeListener(PlayerEventListener.EventType.HURT_EVENT_PRE, EVENT_UUID);
         listener.removeListener(PlayerEventListener.EventType.SKILL_EXECUTE_EVENT, EVENT_UUID);
-//        listener.removeListener(PlayerEventListener.EventType.ACTION_EVENT_CLIENT, EVENT_UUID);
+        listener.removeListener(PlayerEventListener.EventType.FALL_EVENT, EVENT_UUID);
     }
 
 }

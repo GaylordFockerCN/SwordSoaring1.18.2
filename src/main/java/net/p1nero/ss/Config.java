@@ -23,6 +23,7 @@ public class Config
 {
     private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
     public static final ForgeConfigSpec.BooleanValue ENABLE_LOOT_TABLE;
+    public static final ForgeConfigSpec.DoubleValue SWORD_SOARING_COOLDOWN;
     public static final ForgeConfigSpec.DoubleValue RAIN_SCREEN_COOLDOWN;
     public static final ForgeConfigSpec.DoubleValue RAIN_CUTTER_COOLDOWN;
     public static final ForgeConfigSpec.DoubleValue YAKSHAS_MASK_COOLDOWN;
@@ -42,6 +43,7 @@ public class Config
         ENABLE_LOOT_TABLE = createBool("if true, you can get all skill books via fishing, end city, ancient city and strong hold library. or you have to add loot table yourself(for mod pack author)","enable_loot_table", true);
 
         BUILDER.push("Skill Cooldown");
+        SWORD_SOARING_COOLDOWN = createDouble("the cooldown ticks of Rain Screen skill", "sword_soaring_cooldown", 0);
         RAIN_SCREEN_COOLDOWN = createDouble("the cooldown ticks of Rain Screen skill", "rain_screen_cooldown", 862);
         RAIN_CUTTER_COOLDOWN = createDouble("the cooldown ticks of Rain Cutter skill", "rain_cutter_cooldown", 816);
         YAKSHAS_MASK_COOLDOWN = createDouble("the cooldown ticks of Yaksha's Mask skill", "yaksha_mask_cooldown", 749);

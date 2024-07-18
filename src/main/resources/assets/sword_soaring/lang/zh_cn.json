@@ -19,5 +19,7 @@
   "config.sword_soaring.stamina_consume_per_tick": "飞行时每刻耐力消耗",
   "config.sword_soaring.max_anticipation_tick": "前摇的刻数",
   "enchantment.sword_soaring.sword_soaring": "御剑耐力强化",
-  "key.sword_soaring.change_speed": "切换飞行速度"
+  "key.sword_soaring.common": "史诗战斗：御剑飞行",
+  "key.sword_soaring.change_speed": "切换飞行速度",
+  "key.sword_soaring.fly": "开始飞行"
 }
